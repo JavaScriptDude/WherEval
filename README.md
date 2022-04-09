@@ -22,7 +22,9 @@ sw = wutil.StopWatch()
 # Where query (terse example)
 qry = "(f0>=2+f1=1+f2='s')|(f3~'foo%')"
 
-# Template for defining data types and fields allowed in query
+# Note: Query can be written as ((f0 >= 2 AND f1 = 1 AND f2 = 's') OR (f3 like 'foo%'))
+
+# Data template for defining data types and fields allowed in query
 d_tmpl = {'f0': 0,'f1': True,'f2': 's','f3': 's', 'f4': date(1970,1,1)}
 
 # Instantiate Where
@@ -30,7 +32,6 @@ d_tmpl = {'f0': 0,'f1': True,'f2': 's','f3': 's', 'f4': date(1970,1,1)}
 wher = Where(query=qry, data_tmpl=d_tmpl)
 
 print(f"Query:\n . raw:\t{qry}\n . compiled: {wher}\n\nTests:")
-print("Note: Query can be written as ((f0 >= 2 AND f1 = 1 AND f2 = 's') OR (f3 like 'foo%'))")
 
 def _print(w, d, b): print(f"\t{b}\tw/ data: {d}")
 

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "whereval"
-version = "0.0.2"
+version = "0.0.3"
 description = "Tool for parsing SQL like where expressions and evaluating against live data "
 license = "BSD-3-Clause"
 authors = ["Timothy C. Quinn"]
