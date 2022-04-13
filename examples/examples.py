@@ -1,5 +1,5 @@
 import sys
-from datetime import datetime, date, time
+from datetime import datetime, date as dt_date, time as dt_time
 from whereval import Where, util as wutil
 
 C_ = wutil.C_
@@ -17,29 +17,34 @@ def example_1():
     # Where query (terse example)
     qry = "(f0>=2+f1=1+f2='s')|(f3~'foo%')"
 
-    # Template for defining data types and fields allowed in query
-    d_tmpl = {'f0': 0,'f1': True,'f2': 's','f3': 's', 'f4': date(1970,1,1)}
+    # Field and type spec
+    spec = {'f0': int,'f1': bool,'f2': str,'f3': str, 'f4': dt_date}
 
     # Instantiate Where
     #  - Parses query and uses data to form rules for data types and fields
-    wher = Where(query=qry, data_tmpl=d_tmpl)
+    wher = Where(query=qry, spec=spec)
 
 
     print(f"Query:\n . raw:\t{qry}\n . compiled: {wher}\n\nTests:")
 
-    def _print(w, d, b): print(f"\t{b}\tw/ data: {d}")
+    def _print(wher, data, tup): 
+        (ok, result, issues) = tup
+        if not ok:
+            print(f"Eval failed for {wher}. Issues: {issues}")
+        else:
+            print(f"\t{result}\tw/ data: {data}")
 
     # Evaluate expression against real data
-    dct = {'f0': 2, 'f1': True ,'f2': 's', 'f3': 'foobar'}
-    _print(wher, dct, wher.evaluate(dct))
+    data = {'f0': 2, 'f1': True ,'f2': 's', 'f3': 'foobar'}
+    _print(wher, data, wher.evaluate(data))
 
     # For different data
-    dct['f3'] = 'bazbar'
-    _print(wher, dct, wher.evaluate(dct))
+    data['f3'] = 'bazbar'
+    _print(wher, data, wher.evaluate(data))
 
     # For different data
-    dct['f0'] = 1
-    _print(wher, dct, wher.evaluate(dct))
+    data['f0'] = 1
+    _print(wher, data, wher.evaluate(data))
 
     print(f"Completed. Elapsed: {sw.elapsed(3)}s")
 
