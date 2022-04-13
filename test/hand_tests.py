@@ -19,27 +19,29 @@ table_show_Pass = False
 def main():
     global tblEvals, tblQuery, tests_run, tests_failed
 
-    if True:
+    if False:
         _init_tables()
 
 
         # Query Compile tests:
         test_query_syntax()
-        test_query_dates()
+        # test_query_dates()
+
+
 
         # Eval tests:
-        test_str_eq()
-        test_int_neq()
-        test_int_eq()
-        test_int_gteq()
-        test_float_gt()
-        test_bool()
-        test_date()
-        test_datetime_gt()
-        test_datetime_eq()
-        test_datein()
-        test_datebetw()
-        test_like()
+        # test_str_eq()
+        # test_int_neq()
+        # test_int_eq()
+        # test_int_gteq()
+        # test_float_gt()
+        # test_bool()
+        # test_date()
+        # test_datetime_gt()
+        # test_datetime_eq()
+        # test_datein()
+        # test_datebetw()
+        # test_like()
 
         hd_ft = f"Passed: {tests_run-tests_failed}, Failed: {tests_failed}, Total: {tests_run}"
         pc(f"""
@@ -77,14 +79,15 @@ Eval Tests:
         # q = "(f0 = null and f1 in (1,2,3))"
         # q = "(f1 in (1,2,3))"
 
+
         
         def _t(query, spec, data):
             wher = Where(query=query, spec=spec, debug=True)
             pc(f"spec: {str(wher.spec)}")
             pc(f"query: {str(wher)}")
             pc(f"data: {str(data)}")
-            b = wher.evaluate(data)
-            pc(f"After eval: {b}")
+            (ok, result, issues) = wher.evaluate(data)
+            pc(f"After eval: ok: {ok}, result: {result}, issues: {issues}")
 
 
         # C_.break_init = True        
@@ -108,13 +111,18 @@ Eval Tests:
         # query = "(v0>=1+v1<>1+v2=2)|(v3~'asdf%')"
         # _t(query, spec, {'v0': 0, 'v1': 1, 'v2': 3, 'v3': "asdfasdf"})
 
+        # NOT
+        C_.break_eval = True
+        spec = {'v1':int}
+        query = "(not(not(not(not(v1=0)))))"
+        _t(query, spec, {'v1': 0})
 
         # Str test with wrong data
         # C_.break_init = True
-        C_.break_eval = True
-        spec = {'f0': str}
-        query = "(f0 = 'foobar')"
-        _t(query, spec, data={'f0': "foobar"})
+        # C_.break_eval = True
+        # spec = {'f0': str}
+        # query = "(f0 = 'foobar')"
+        # _t(query, spec, data={'f0': "foobar"})
 
         # spec = {'f0': (int, None),'f1': int,'f2': str,'f3': (str, None)}
         # _t({'f0': None, 'f1': 5, 'f2': 's', 'f3': '33'})
@@ -125,14 +133,14 @@ Eval Tests:
 
 def test_query_syntax():
     spec = {'v0': int, 'v1': int, 'v2': int, 'v3': str}
-    _tq('q_syntax-braces1', spec=spec, q="((v1 > 1)", exc_expect=302)
-    _tq('q_syntax-braces2', spec=spec, q="(v1 > 1))", exc_expect=302)
-    _tq('q_syntax-func', spec=spec, q="(v1 > upper('a'))", exc_expect=302)
+    # _tq('q_syntax-braces1', spec=spec, q="((v1 > 1)", exc_expect=302)
+    # _tq('q_syntax-braces2', spec=spec, q="(v1 > 1))", exc_expect=302)
+    # _tq('q_syntax-func', spec=spec, q="(v1 > upper('a'))", exc_expect=302)
     
-    _tq('q_syntax-betwOper', spec=spec, q="(v1 between (1,3))")
-    _tq('q_syntax-inOper', spec=spec, q="(v1 in (1,2,3))")
-    _tq('q_syntax-terse1', spec=spec, q="(v1>1)")
-    _tq('q_syntax-terse2', spec=spec, q="(v0>=1+v1<>1+v2=2)|(v3~'asdf%')")
+    # _tq('q_syntax-betwOper', spec=spec, q="(v1 between (1,3))")
+    # _tq('q_syntax-inOper', spec=spec, q="(v1 in (1,2,3))")
+    # _tq('q_syntax-terse1', spec=spec, q="(v1>1)")
+    # _tq('q_syntax-terse2', spec=spec, q="(v0>=1+v1<>1+v2=2)|(v3~'asdf%')")
 
 
 def test_query_dates():

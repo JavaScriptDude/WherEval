@@ -78,16 +78,19 @@ Completed. Elapsed: 0.003s
 ### Query Syntax:
 
 ```
-# Conditions:
-#   AND / OR
-# Special Conditions:
-#   + --> AND
-#   | --> OR
-# Operators:
+# General:
+#  Query must begin with '(' and end with ')'
+#  NOT, IN, BETWEEN must be followed by parenthesis '('
+# Boolean Operators:
+#   AND, OR, NOT
+# Equality Operators:
 #  =, !=, <, <=, >, >=, like
-# Special Operators:
-#   <> --> !=
-#    ~ --> like
+# Special:
+#   !   -->  NOT
+#   +   -->  AND
+#   |   -->  OR
+#   <>  -->  !=
+#   ~   -->  like
 ```
 
 ### TODO:

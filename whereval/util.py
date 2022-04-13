@@ -1,4 +1,4 @@
-import os, re, fnmatch, time
+import os, sys, re, fnmatch, time, typing, traceback
 from datetime import datetime, date as dt_date, time as dt_time
 from enum import EnumMeta, Enum, IntEnum, unique
 
@@ -7,7 +7,8 @@ class C_():
     ANSI_SQL_DATE = "%Y-%m-%d"
     ANSI_SQL_DATETIME = "%Y-%m-%d %H:%M:%S"
     ANSI_SQL_TIME = "%H:%M:%S"
-    LEGAL_FINAL_EXPR = {'(', ')', 'or', 'and', 'True', 'False'}
+    LEGAL_FINAL_EXPR = {'(', ')', 'or', 'and', 'True', 'False', 'not'}
+    break_at_clause = -1
     break_init = False
     break_eval = False
    
@@ -79,9 +80,12 @@ class SEnum(Enum):
             return not o is None and o.__class__ == cls
             
     @classmethod
-    def getMember(cls, o):
+    def getMember(cls, o, asrt:bool=False):
         a = [m for m in cls if m.value == o]
-        return a[0] if len(a) == 1 else None
+        ret = a[0] if len(a) == 1 else None
+        if asrt and ret is None:
+            raise AssertionError(f"Value '{o}' not found in Enums - {cls.__name__}")
+        return ret
 
     @classmethod
     def validate(cls, alias:str, o, strict:bool=True):
@@ -106,9 +110,12 @@ class IEnum(IntEnum):
             return not o is None and o.__class__ == cls
 
     @classmethod
-    def getMember(cls, o):
+    def getMember(cls, o, asrt:bool=False):
         a = [m for m in cls if m.value == o]
-        return a[0] if len(a) == 1 else None
+        ret = a[0] if len(a) == 1 else None
+        if asrt and ret is None:
+            raise AssertionError(f"Value '{o}' not found in Enums - {cls.__name__}")
+        return ret
 
     @classmethod
     def validate(cls, alias:str, o, strict:bool=True):
@@ -134,3 +141,32 @@ class StopWatch:
         prec = 3 if prec is None or not isinstance(prec, int) else prec
         diff= time.time() - self._startTime
         return round(diff, prec)
+
+def getCNStr(o):
+    return f"({getClassName(o)}) - {str(o)}"
+
+
+# Universal Join - Works on any types and list or tuples. Calls str() for values
+def join(l:typing.Union[list, tuple], s: str) -> str:
+    return s.join([str(v) for v in l])
+
+def dumpCurExcept(chain:bool=True):
+    ety, ev, etr = sys.exc_info()
+    s = ''.join(traceback.format_exception(ety, ev, etr, chain=chain))
+    iF = s.find('\n')
+    return s[iF+1:] if iF > -1 else s
+
+
+def pre(s, iChars=2):
+    sPad = ' ' * iChars
+    iF = s.find('\n')
+    if iF == -1:
+        return sPad + s
+    sb = []
+    iFL = 0
+    while iF > -1:
+        sb.append(sPad + s[iFL:iF])
+        iFL = iF + 1
+        iF = s.find('\n', iF + 1)
+    sb.append('' if iF == len(s) else sPad + s[iFL:])
+    return '\n'.join(sb)
