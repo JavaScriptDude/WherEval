@@ -92,7 +92,3 @@ Completed. Elapsed: 0.003s
 #   <>  -->  !=
 #   ~   -->  like
 ```
-
-### TODO:
-* [.] implement `in (v1, v2, v3)` clauses
-* [.] implement `between (v1, v2)` clauses
