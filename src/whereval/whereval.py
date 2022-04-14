@@ -132,6 +132,9 @@ class Where():
 
             self._query_vars = []
 
+            # duck punch in simplified regexp
+            sqlparse.engine.filter_stack.lexer.SQL_REGEX = util.get_sqlparse_regex()
+
             # Check that there is only one statement
             aStmt = sqlparse.split(self.query)
             assert len(aStmt) == 1,"Only one query statement is allowed!"
@@ -322,8 +325,8 @@ def _Where__parse(self):
 
             elif _oper == '<>':
                 _oper = '!='
-            
-            _oper_use = Operator.getMember(_oper, asrt=True)
+
+            _oper_use = Operator.getMember(_oper.lower() if isinstance(_oper, str) else _oper, asrt=True)
 
             wher_cur.addClause(_var, _oper_use, _val, _val_t)
 
@@ -340,6 +343,8 @@ def _Where__parse(self):
         _ttype = _ttype[1:]
         _val = tkn.normalized
         _val_lc = _val.lower()
+
+        # pc(f"_ttype: {_ttype}, _val: '{_val}'")
 
 
         if _in_bet_watch > -1:
@@ -508,6 +513,12 @@ def _Where__parse(self):
         elif _ttype == 'Keyword':
             if _val_lc == 'between':
                 _clause_tk.append(Operator.Between)
+                
+            elif _val_lc == 'in':
+                _clause_tk.append(Operator.In)
+
+            elif _val_lc == 'like':
+                _clause_tk.append(Operator.Like)
 
             elif _val == VType.Null:
                 if not (len(_clause_tk) == 2 or _clause_tk[-1:] in ('=', '!=')):

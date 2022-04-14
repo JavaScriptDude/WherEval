@@ -19,7 +19,6 @@ def pc(*args):
     for i, v in enumerate(args): a.append( ( v if i == 0 or isinstance(v, (int, float, complex, str)) else str(v) ) )
     print( a[0].format(*a[1:]) )
 
-
 # x-platform date parsing / formatting
 def _fixDateFmt(s) -> str:
     return s.replace('%-', '%#') if os.name == 'nt' else s
@@ -81,7 +80,7 @@ class SEnum(Enum):
             
     @classmethod
     def getMember(cls, o, asrt:bool=False):
-        a = [m for m in cls if m.value == o]
+        a = [m for m in cls if o in (m, m.value) ]
         ret = a[0] if len(a) == 1 else None
         if asrt and ret is None:
             raise AssertionError(f"Value '{o}' not found in Enums - {cls.__name__}")
@@ -111,7 +110,7 @@ class IEnum(IntEnum):
 
     @classmethod
     def getMember(cls, o, asrt:bool=False):
-        a = [m for m in cls if m.value == o]
+        a = [m for m in cls if o in (m, m.value) ]
         ret = a[0] if len(a) == 1 else None
         if asrt and ret is None:
             raise AssertionError(f"Value '{o}' not found in Enums - {cls.__name__}")
@@ -170,3 +169,66 @@ def pre(s, iChars=2):
         iF = s.find('\n', iF + 1)
     sb.append('' if iF == len(s) else sPad + s[iFL:])
     return '\n'.join(sb)
+
+
+# For duckpunching in more simplified keywords
+from sqlparse import tokens
+def get_sqlparse_regex():
+
+    # All keywords supported by whereval
+    KEYWORDS = {
+         'AND': tokens.Keyword
+        ,'OR': tokens.Keyword
+        ,'TRUE': tokens.Keyword
+        ,'FALSE': tokens.Keyword
+        ,'BETWEEN': tokens.Keyword
+        ,'IN': tokens.Keyword
+        ,'NULL': tokens.Keyword
+        ,'LIKE': tokens.Keyword
+    }
+
+    def is_keyword(value):
+        val = value.upper()
+        return (KEYWORDS.get(val, tokens.Name)), value
+
+    # Source: sqlparse.keywords.py
+    # Blocks commented out as needed
+    SQL_REGEX = {
+        'root': [
+            (r'(--|# )\+.*?(\r\n|\r|\n|$)', tokens.Comment.Single.Hint),
+            (r'/\*\+[\s\S]*?\*/', tokens.Comment.Multiline.Hint),
+            (r'(--|# ).*?(\r\n|\r|\n|$)', tokens.Comment.Single),
+            (r'/\*[\s\S]*?\*/', tokens.Comment.Multiline),
+            (r'(\r\n|\r|\n)', tokens.Newline),
+            (r'\s+?', tokens.Whitespace),
+            (r':=', tokens.Assignment),
+            (r'::', tokens.Punctuation),
+            (r'\*', tokens.Wildcard),
+            (r"`(``|[^`])*`", tokens.Name),
+            (r"´(´´|[^´])*´", tokens.Name),
+            (r'((?<!\S)\$(?:[_A-ZÀ-Ü]\w*)?\$)[\s\S]*?\1', tokens.Literal),
+            (r'\?', tokens.Name.Placeholder),
+            (r'%(\(\w+\))?s', tokens.Name.Placeholder),
+            (r'(?<!\w)[$:?]\w+', tokens.Name.Placeholder),
+            (r'\\\w+', tokens.Command),
+            (r'(@|##|#)[A-ZÀ-Ü]\w+', tokens.Name),
+            (r'[A-ZÀ-Ü]\w*(?=\s*\.)', tokens.Name),  # 'Name'   .
+            (r'(?<=\.)[A-ZÀ-Ü]\w*', tokens.Name),  # .'Name'
+            (r'[A-ZÀ-Ü]\w*(?=\()', tokens.Name),  # side effect: change kw to func
+            (r'-?0x[\dA-F]+', tokens.Number.Hexadecimal),
+            (r'-?\d+(\.\d+)?E-?\d+', tokens.Number.Float),
+            (r'(?![_A-ZÀ-Ü])-?(\d+(\.\d*)|\.\d+)(?![_A-ZÀ-Ü])',tokens.Number.Float),
+            (r'(?![_A-ZÀ-Ü])-?\d+(?![_A-ZÀ-Ü])', tokens.Number.Integer),
+            (r"'(''|\\\\|\\'|[^'])*'", tokens.String.Single),
+            (r'"(""|\\\\|\\"|[^"])*"', tokens.String.Symbol),
+            (r'(""|".*?[^\\]")', tokens.String.Symbol),
+            (r'(?<![\w\])])(\[[^\]\[]+\])', tokens.Name),
+            (r'[0-9_A-ZÀ-Ü][_$#\w]*', is_keyword),
+            (r'[;:()\[\],\.]', tokens.Punctuation),
+            (r'[<>=~!]+', tokens.Operator.Comparison),
+            (r'[+/@#%^&|^-]+', tokens.Operator),
+        ]}
+
+    FLAGS = re.IGNORECASE | re.UNICODE
+    SQL_REGEX = [(re.compile(rx, FLAGS).match, tt) for rx, tt in SQL_REGEX['root']]
+    return SQL_REGEX

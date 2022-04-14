@@ -1,7 +1,7 @@
 import sys, unittest2
 from datetime import datetime, time as dt_time, date as dt_date
 import texttable as tt
-from whereval import Where, util, EvalExcept, EvalIssue, QueryIssue, SpecIssue
+from whereval import Where, util, EvalExcept, QueryIssue, SpecIssue
 
 # Note - These tests are still WIP
 
@@ -15,6 +15,7 @@ from whereval import Where, util, EvalExcept, EvalIssue, QueryIssue, SpecIssue
 #     [.] like 
 #     [.] Terse query formatting: (v0>=1+v1<>1+v2=2)|(v3~'asdf%')
 #     [.] NOT 
+#     [.] Test field names that are in standard SQL keywords besides AND|OR|TRUE|FALSE etc...
 # [.] Analize all error code paths and ensure tests are written for reach.
 # [.] Write tests for each data type
 # [.] Verify all int / float tests including comparing int to float

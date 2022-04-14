@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "whereval"
-version = "0.1.3"
+version = "0.1.4"
 description = "Tool for parsing SQL like where expressions and evaluating against live data "
 license = "MIT"
 authors = ["Timothy C. Quinn"]
@@ -25,6 +25,8 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.7.9"
+sqlparse = "0.4.2"
+
 
 [tool.poetry.dev-dependencies]
 

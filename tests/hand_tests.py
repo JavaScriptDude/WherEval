@@ -14,34 +14,34 @@ tblQuery = None
 tests_run = 0
 tests_failed = 0
 
-table_show_Pass = False
+table_show_Pass = True
 
 def main():
     global tblEvals, tblQuery, tests_run, tests_failed
 
-    if False:
+    if True:
         _init_tables()
 
 
         # Query Compile tests:
         test_query_syntax()
-        # test_query_dates()
+        test_query_dates()
 
 
 
         # Eval tests:
-        # test_str_eq()
-        # test_int_neq()
-        # test_int_eq()
-        # test_int_gteq()
-        # test_float_gt()
-        # test_bool()
-        # test_date()
-        # test_datetime_gt()
-        # test_datetime_eq()
-        # test_datein()
-        # test_datebetw()
-        # test_like()
+        test_str_eq()
+        test_int_neq()
+        test_int_eq()
+        test_int_gteq()
+        test_float_gt()
+        test_bool()
+        test_date()
+        test_datetime_gt()
+        test_datetime_eq()
+        test_datein()
+        test_datebetw()
+        test_like()
 
         hd_ft = f"Passed: {tests_run-tests_failed}, Failed: {tests_failed}, Total: {tests_run}"
         pc(f"""
@@ -112,10 +112,17 @@ Eval Tests:
         # _t(query, spec, {'v0': 0, 'v1': 1, 'v2': 3, 'v3': "asdfasdf"})
 
         # NOT
+        # C_.break_eval = True
+        # spec = {'v1':int}
+        # query = "(not(not(not(not(v1=0)))))"
+        # _t(query, spec, {'v1': 0})
+
+
+        # field: 'source'
         C_.break_eval = True
-        spec = {'v1':int}
-        query = "(not(not(not(not(v1=0)))))"
-        _t(query, spec, {'v1': 0})
+        spec = {'source':int}
+        query = "(not(not(not(not(source=0)))))"
+        _t(query, spec, {'source': 0})
 
 
 
