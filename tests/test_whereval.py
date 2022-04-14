@@ -25,6 +25,7 @@ from whereval import Where, util, EvalExcept, QueryIssue, SpecIssue
 #     [.] Null when disallowed
 #     [.] Null in between values 
 #     [.] Null in 'in' values
+#     [.] Null in 'like' data
 #     [.] Null weird location in query
 
 

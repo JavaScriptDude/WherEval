@@ -19,7 +19,7 @@ table_show_Pass = True
 def main():
     global tblEvals, tblQuery, tests_run, tests_failed
 
-    if True:
+    if False:
         _init_tables()
 
 
@@ -119,11 +119,16 @@ Eval Tests:
 
 
         # field: 'source'
-        C_.break_eval = True
-        spec = {'source':int}
-        query = "(not(not(not(not(source=0)))))"
-        _t(query, spec, {'source': 0})
+        # C_.break_eval = True
+        # spec = {'source':int}
+        # query = "(not(not(not(not(source=0)))))"
+        # _t(query, spec, {'source': 0})
 
+        # None
+        C_.break_eval = True
+        spec = {'f1':(str, None)}
+        query = "(f1 like'%foo%')"
+        _t(query, spec, {'f1': None})
 
 
         

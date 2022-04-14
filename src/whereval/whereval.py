@@ -697,6 +697,7 @@ class Clause():
             return EvalExcept(201, f"Variable {self.var} could not be retrieved from data provided: {data}")
         
         d_dtype = type(d_val)
+        d_is_null = d_dtype == None.__class__
 
         if self.oper in (Operator.In, Operator.Between):
             _val_use = self.values
@@ -729,6 +730,10 @@ class Clause():
 
                 elif (d_dtype in (int, float) and self.sp_dtype in (int, float)):
                     pass # Be flexible here
+
+                elif d_is_null:
+                    if not self.allow_null:
+                        return (False, EvalIssue(105, f"WARNING - Specified field {self.var} does not allow None/Null but None detected in data."))
 
                 else:
                     return (False, EvalIssue(102, f"WARNING - Specified dtype for field {self.var} is {self.sp_dtype} but got '({d_dtype}) {d_val}' in data."))
@@ -792,6 +797,7 @@ class Clause():
                     return v_l >= v_r
 
                 elif self.oper == Operator.Like:
+                    if d_is_null: return False
                     if not isinstance(v_r, str):
                         return (False, EvalIssue(104, f"Variable {self.var} must be a string. Got '{util.getCNStr(v_l)}'"))
                     return util.sql_like_match(v_l, v_r)
@@ -831,6 +837,7 @@ class WVExceptBase(Exception):
 # 102 = dtype passed does not match spec dtype
 # 103 = Bool expected
 # 104 = String expected
+# 105 = Null value deteced in data but not allowed for field
 class EvalIssue(WVExceptBase):
     def __str__(self):
         return self._repr__()
