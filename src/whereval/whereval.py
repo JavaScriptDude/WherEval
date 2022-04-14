@@ -21,8 +21,9 @@
 # [.] Add support for in (1,2,3) clause
 # [.] Add support for between (1, 3) clause
 __package__ = __name__
-
+import enum
 from sqlite3 import Date
+from numpy import isin
 import sqlparse, os
 from datetime import datetime, date as dt_date, time as dt_time
 import whereval.util as util
@@ -128,7 +129,8 @@ class Where():
 
             self.spec = Spec(spec)
 
-
+            self.flags = kwargs.get('flags', 0)
+            assert self.flags == 0 or isinstance(self.flags, WherEvalFlag), f"flags must be 0 or whereval.WherEvalFlag. Got: {util.getCNStr(self.flags)}"
 
             self._query_vars = []
 
@@ -244,6 +246,9 @@ class Where():
 
         return (ok, result, aIssues)
 
+
+    def flag_is_set(self, flag:'WherEvalFlag'):
+        return ((self.flags & flag) == flag)
 
     @classmethod
     def walk(cls, cur, depth:int=-1):
@@ -738,6 +743,8 @@ class Clause():
                 else:
                     return (False, EvalIssue(102, f"WARNING - Specified dtype for field {self.var} is {self.sp_dtype} but got '({d_dtype}) {d_val}' in data."))
 
+
+
             # Actual evaluations
 
             def _fixDate(l, r):
@@ -749,10 +756,16 @@ class Clause():
                     l = dt_date(l.year, l.month, l.day)
                 return (l,r)
 
+            def _fixStr(*args):
+                if not wher.flag_is_set(IGNORECASE): return args[0] if len(args) == 1 else tuple(args)
+                return tuple([arg.lower() if isinstance(arg, str) else arg for arg in args])
+
+
             
             if self.oper == Operator.In:
                 # _val_use is a 2+ tuple
                 if d_val is None: return (VType.Null in _val_use)
+                _val_use = _fixStr(*_val_use)
                 for v_r in _val_use:
                     (v_l, v_r) = _fixDate(d_val, v_r)
                     if v_l == v_r: return True
@@ -762,6 +775,7 @@ class Clause():
 
             elif self.oper == Operator.Between:
                 # _val_use is a 2 tuple
+                _val_use = _fixStr(*_val_use)
                 (v_l, v_r) = _fixDate(d_val, _val_use[0])
                 b1 = v_l >= v_r
                 (v_l, v_r) = _fixDate(d_val, _val_use[1])
@@ -769,8 +783,8 @@ class Clause():
                 return (b1 and b2)
 
             else:
-
-                (v_l, v_r) = _fixDate(d_val, _val_use)
+                (v_l, v_r) = _fixStr(d_val, _val_use)
+                (v_l, v_r) = _fixDate(v_l, v_r)
 
                 if   self.oper == Operator.Equals:
                     if self.sp_dtype == bool:
@@ -913,4 +927,12 @@ class VType(util.SEnum):
     Time = 'Time'
     Date = 'Date'
     DateTime = 'DateTime'
+
+
+class WherEvalFlag(enum.IntFlag):
+    IGNORECASE = 1
+
+IGNORECASE = WherEvalFlag.IGNORECASE
+
+
 

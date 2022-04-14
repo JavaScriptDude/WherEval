@@ -1,6 +1,12 @@
-import os, sys, re, fnmatch, time, typing, traceback
+import os
+import sys
+import re
+import fnmatch
+import time
+import typing
+import traceback
+import enum
 from datetime import datetime, date as dt_date, time as dt_time
-from enum import EnumMeta, Enum, IntEnum, unique
 
 class C_():
     RE_ALPHA_NUM_USCORE=re.compile("^[0-9a-zA-Z_]*$")
@@ -56,10 +62,10 @@ def sql_like_match(v, patrn) -> bool:
     return fnmatch.fnmatch(v, patrn)
 
 def isEnumClass(o) -> bool:
-    return type(o) == EnumMeta
+    return type(o) == enum.EnumMeta
 
 def isEnumMember(o) -> bool:
-    return type(o).__class__ == EnumMeta
+    return type(o).__class__ == enum.EnumMeta
 
 def getClassName(o):
     if o == None: return None
@@ -69,7 +75,7 @@ def getClassName(o):
 
 
 # String Enum
-class SEnum(Enum):
+class SEnum(enum.Enum):
     @classmethod
     def hasMember(cls, o, strict:bool=True) -> bool:
         if type(o) == str:
@@ -99,7 +105,7 @@ class SEnum(Enum):
         return list(cls._value2member_map_.keys())
 
 #Int Enum
-class IEnum(IntEnum):
+class IEnum(enum.IntEnum):
     @classmethod
     def hasMember(cls, o, strict:bool=True) -> bool:
         if type(o) == int:
@@ -127,6 +133,9 @@ class IEnum(IntEnum):
     def values(cls):
         """Returns a list of all the enum values."""
         return list(cls._value2member_map_.keys())
+
+
+
 
 
 class StopWatch:

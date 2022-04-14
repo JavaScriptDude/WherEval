@@ -1,5 +1,6 @@
 from datetime import datetime, date as dt_date, time as dt_time, timedelta
 import texttable as tt
+import whereval
 from whereval import Where, util, EvalExcept, QueryIssue, SpecIssue
 
 # This file is hand testing.
@@ -19,7 +20,7 @@ table_show_Pass = True
 def main():
     global tblEvals, tblQuery, tests_run, tests_failed
 
-    if False:
+    if True:
         _init_tables()
 
 
@@ -81,8 +82,8 @@ Eval Tests:
 
 
         
-        def _t(query, spec, data):
-            wher = Where(query=query, spec=spec, debug=True)
+        def _t(query, spec, data, flags=0):
+            wher = Where(query=query, spec=spec, debug=True, flags=flags)
             pc(f"spec: {str(wher.spec)}")
             pc(f"query: {str(wher)}")
             pc(f"data: {str(data)}")
@@ -125,10 +126,16 @@ Eval Tests:
         # _t(query, spec, {'source': 0})
 
         # None
+        # C_.break_eval = True
+        # spec = {'f1':(str, None)}
+        # query = "(f1 like'%foo%')"
+        # _t(query, spec, {'f1': None})
+
+
         C_.break_eval = True
         spec = {'f1':(str, None)}
         query = "(f1 like'%foo%')"
-        _t(query, spec, {'f1': None})
+        _t(query, spec, {'f1': 'FOO'}, whereval.IGNORECASE)
 
 
         

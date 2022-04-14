@@ -27,6 +27,7 @@ from whereval import Where, util, EvalExcept, QueryIssue, SpecIssue
 #     [.] Null in 'in' values
 #     [.] Null in 'like' data
 #     [.] Null weird location in query
+# [.] Add tests for IGNORECASE
 
 
 pc = util.pc
@@ -230,7 +231,7 @@ class DateTests(unittest2.TestCase):
     def tearDownClass(cls):
         hd_ft = f"Passed: {tests_run-tests_failed}, Failed: {tests_failed}, Total: {tests_run}"
         pc(f"""
-Test Results: {hd_ft}
+Incremental Tests: {hd_ft}
 
 Query Init Tests:
 {tblEvals.draw()}
@@ -238,7 +239,7 @@ Query Init Tests:
 
 Test Results: {hd_ft}
 
-UnitTest results:""")
+Incremental Tests:""")
 
 
     # neg_expect = tuple(<exc_class>, <exc_code>, [<EvalIssue code>])
