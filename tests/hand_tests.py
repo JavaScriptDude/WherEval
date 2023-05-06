@@ -1,4 +1,4 @@
-from datetime import datetime, date as dt_date, time as dt_time, timedelta
+from datetime import datetime, date as dt_date, time as dt_time
 import texttable as tt
 import whereval
 from whereval import Where, util, EvalExcept, QueryIssue, SpecIssue
@@ -134,7 +134,7 @@ Eval Tests:
 
         C_.break_eval = True
         spec = {'f1':(str, None)}
-        query = "(f1 like'%foo%')"
+        query = "(f1x like'%foo%')"
         _t(query, spec, {'f1': 'FOO'}, whereval.IGNORECASE)
 
 
