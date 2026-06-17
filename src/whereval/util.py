@@ -17,6 +17,22 @@ class C_():
     break_at_clause = -1
     break_init = False
     break_eval = False
+
+
+def dump_filter_spec(spec:dict):
+    ret = {}
+    for k, v in spec.items():
+        if isinstance(v, tuple):
+            a = []
+            for v2 in v:
+                a.append(None if v2 is None else v2.__name__)
+            v = tuple(a)
+        else:
+            v = None if v is None else v.__name__
+        ret[k] = v
+    return ret
+
+
    
 def pc(*args):
     if len(args) == 0: return
@@ -178,6 +194,11 @@ def pre(s, iChars=2):
         iF = s.find('\n', iF + 1)
     sb.append('' if iF == len(s) else sPad + s[iFL:])
     return '\n'.join(sb)
+
+
+            
+            
+
 
 
 # For duckpunching in more simplified keywords

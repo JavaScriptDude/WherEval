@@ -22,8 +22,6 @@
 # [.] Add support for between (1, 3) clause
 __package__ = __name__
 import enum
-from sqlite3 import Date
-from numpy import isin
 import sqlparse, os
 from datetime import datetime, date as dt_date, time as dt_time
 import whereval.util as util
@@ -420,12 +418,13 @@ def _Where__parse(self):
                 raise QueryIssue(302, f"Name fields can only be the first in expression or following a '(' -or- keyword (and, or).")
 
             if not self.hasVar(_val):
-                raise QueryIssue(301, f"Invalid variable: {_val}. Valid variables: {self.spec.sp_vars}")
+                _tmp = str(util.dump_filter_spec(self.spec.raw_spec)).replace("'", '').replace("None", 'null')
+                raise QueryIssue(301, f"Invalid field: {_val}.\nValid fields: {_tmp}")
 
             try:
                 (_clause_dtype, _clause_allow_null) = self.spec.getInfo(_val)
             except SpecIssue as ex:
-                raise QueryIssue(301, f"Field ({_val}) not found in spec. Error: {ex.args[0]}")
+                raise QueryIssue(300, f"Error getting info for field ({_val}). Error: {ex.args[0]}")
 
             _clause_tk.append(_val)
 
@@ -636,7 +635,7 @@ class Clause():
         try:
             (_sp_dtype, _sp_allow_null) = self._get_wher().spec.getInfo(var)
         except SpecIssue as ex:
-            raise QueryIssue(301, f"Field ({var}) not found in spec. Error: {ex.args[0]}")
+            raise QueryIssue(300, f"Error getting info for field ({var}). Error: {ex.args[0]}")
             
         self.sp_dtype = _sp_dtype
         self.allow_null = _sp_allow_null
